@@ -119,4 +119,45 @@ function App() {
   )
 }
 
-export default App
+import React, { useState } from 'react'; // Ensure useState is imported at the top
+
+function App() {
+  // --- ADD THIS STATE AT THE TOP OF THE FUNCTION ---
+  const [workoutPlan, setWorkoutPlan] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // --- ADD THIS FUNCTION INSIDE APP() ---
+  const generateWorkout = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: "Create a 20 minute home workout" })
+      });
+      const data = await response.json();
+      setWorkoutPlan(data.text);
+    } catch (error) {
+      console.error("Error:", error);
+      setWorkoutPlan("Failed to connect to the server.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="App">
+      {/* --- ADD THE BUTTON AND DISPLAY HERE --- */}
+      <button onClick={generateWorkout} disabled={loading}>
+        {loading ? "Generating..." : "Generate My Plan"}
+      </button>
+
+      <div className="workout-result">
+        <pre style={{ whiteSpace: 'pre-wrap', marginTop: '20px' }}>
+          {workoutPlan}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+export default App;
